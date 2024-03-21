@@ -1,0 +1,29 @@
+.room-id {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.chatbox {
+    height: 300px;
+    overflow-y: auto;
+}
+
+.msgln {
+    margin-bottom: 10px;
+}
+
+.input-group {
+    margin-top: 20px;
+}
+
+.container-chatroom{
+    background-color:#282A36;
+    border-radius: 5px;
+    width: 600px;
+    color: white
+}
+
+.chat{
+    height: 300px;
+}
