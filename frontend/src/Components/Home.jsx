@@ -14,8 +14,11 @@ function Home() {
   return (
     <section style={{ background: "#034d3a" }}>
       <div className="d-flex justify-content-center align-items-center welcome-container bg-homepage container">
-        <div className="d-flex w-100" style={{ gap: "20px" }}>
-          <div style={{ width: "40%" }}>
+        <div
+          className="d-flex flex-column-reverse flex-md-row w-100"
+          style={{ gap: "20px" }}
+        >
+          <div className="w-100 w-md-40">
             <h2>CHAT APP</h2>
             <p className="py-3" style={{ color: "#ccc" }}>
               CHATAPP is built with Bootstrap 5.3.2 in HTML, SCSS with
@@ -44,7 +47,7 @@ function Home() {
               )}
             </div>
           </div>
-          <div style={{ width: "60%" }}>
+          <div className="w-100 w-md-60">
             <img src={demo} alt="" className="demo" />
           </div>
         </div>

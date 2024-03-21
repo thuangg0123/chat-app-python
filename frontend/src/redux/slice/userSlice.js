@@ -8,7 +8,8 @@ const initialState = {
     userData: {},
     isCreateRoom: false,
     successMessage: null,
-    listRooms: []
+    listRooms: [],
+    messagesDB: []
 }
 
 export const register = createAsyncThunk(
@@ -78,7 +79,25 @@ export const deleteRoom = createAsyncThunk(
     }
 );
 
+export const getMessageFromDB = createAsyncThunk(
+    'user/get-message-from-db',
+    async (room_id, { rejectWithValue, dispatch }) => {
+        try {
+            const response = await axios.get(`http://localhost:5000/messages/${room_id}`);
+            const messages = response.data.map(message => ({
+                message: message.message,
+                username: message.username
+            }));
+            dispatch(setMessages(messages));
+            return messages;
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
 export const loadUserDataFromLocalStorage = createAction('user/loadUserDataFromLocalStorage')
+export const setMessages = createAction('user/setMessages')
 
 const userSlice = createSlice({
     name: 'user',
@@ -157,6 +176,9 @@ const userSlice = createSlice({
             })
             .addCase(getUserRooms.rejected, (state, action) => {
                 state.error = action.payload.message;
+            })
+            .addCase(setMessages, (state, action) => {
+                state.messagesDB = action.payload
             })
     },
 });

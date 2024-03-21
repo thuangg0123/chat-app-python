@@ -23,7 +23,7 @@ function TableRoom() {
       <div className="">
         <p className="fw-bold">List of available rooms</p>
       </div>
-      <Table striped bordered hover>
+      <Table striped bordered hover className="text-center">
         <thead>
           <tr>
             <th>#</th>
@@ -38,7 +38,7 @@ function TableRoom() {
               <td>{index + 1}</td>
               <td>{room.room_id}</td>
               <td>{room.room_name}</td>
-              <td className="d-flex">
+              <td className="d-flex justify-content-center">
                 <Link to={`/chat-room/${room.room_name}`}>
                   <Button variant="success" className="me-3">
                     Join Room

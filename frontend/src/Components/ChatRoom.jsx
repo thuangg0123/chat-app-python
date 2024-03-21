@@ -7,28 +7,29 @@ import InputGroup from "react-bootstrap/InputGroup";
 
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, Link } from "react-router-dom";
-import { getUserRooms } from "../redux/slice/userSlice";
-const socket = io("http://localhost:5000");
+import { getUserRooms, getMessageFromDB } from "../redux/slice/userSlice";
 import "./style.css";
+
+const socket = io("http://localhost:5000");
 
 function ChatRoom() {
   const { roomId } = useParams();
-  const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
   const messagesEndRef = useRef(null);
 
   const userData = useSelector((state) => state.user.userData);
   const listRooms = useSelector((state) => state.user.listRooms);
+  const messagesDB = useSelector((state) => state.user.messagesDB);
   const dispatch = useDispatch();
 
   useEffect(() => {
     socket.on("message", (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
+      dispatch(getMessageFromDB(userData.rooms[0].room_id));
     });
     return () => {
       socket.off("message");
     };
-  }, []);
+  }, [dispatch, userData]);
 
   useEffect(() => {
     if (userData.user_id) {
@@ -44,7 +45,8 @@ function ChatRoom() {
         username: userData.username,
       });
     }
-  }, [listRooms, userData]);
+    dispatch(getMessageFromDB(userData.rooms[0].room_id));
+  }, [listRooms, userData, roomId, dispatch]);
 
   useEffect(() => {
     return () => {
@@ -58,7 +60,6 @@ function ChatRoom() {
 
   const sendMessage = () => {
     if (messageInput.trim() !== "") {
-      console.log("Sending message:", messageInput);
       socket.emit("message", {
         username: userData.username,
         message: messageInput,
@@ -70,7 +71,7 @@ function ChatRoom() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messagesDB]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -78,7 +79,7 @@ function ChatRoom() {
 
   return (
     <div className="container-chatroom container mt-3">
-      <div className="px-3 d-flex justify-content-between align-items-center">
+      <div className="p-3 d-flex justify-content-between align-items-center">
         <h6 className="m-0">Room Chat - #{roomId}</h6>
         <Link to="/list-room">
           <Button variant="primary">Back List Room</Button>
@@ -86,16 +87,39 @@ function ChatRoom() {
       </div>
 
       <section
-        className="chat"
+        className="chat px-3"
         style={{ overflowY: "auto", maxHeight: "70vh" }}
       >
-        {messages.map((message, index) => (
-          <span className="d-flex" key={index}>
-            <p>
-              <strong>{message.username}</strong>: {message.message}
-            </p>
-          </span>
-        ))}
+        <div className="message-container">
+          {messagesDB.map((message, index) => (
+            <span
+              className={`d-flex ${
+                message.username === userData.username
+                  ? "justify-content-end"
+                  : "justify-content-start"
+              }`}
+              key={index}
+            >
+              <p
+                className={`message ${
+                  message.username === userData.username
+                    ? "own-message"
+                    : "other-message"
+                }`}
+              >
+                {message.username === userData.username ? (
+                  <>
+                    {message.message}: <strong>You</strong>
+                  </>
+                ) : (
+                  <>
+                    <strong>{message.username}</strong>: {message.message}
+                  </>
+                )}
+              </p>
+            </span>
+          ))}
+        </div>
         <div ref={messagesEndRef} />
       </section>
 

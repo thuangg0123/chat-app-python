@@ -2,9 +2,8 @@ from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from flask_pymongo import PyMongo
 from flask_cors import CORS
-from bson import ObjectId
+from bson import ObjectId, json_util
 import bcrypt
-import json
 
 app = Flask(__name__)
 app.secret_key = "123456"
@@ -149,12 +148,17 @@ def get_user_rooms(userId):
         return jsonify({"message": "User not found"}), 404
 
 
+@app.route("/messages/<room_id>")
+def get_messages(room_id):
+    messages = list(mongo.db.messages.find({"room_id": room_id}))
+    conver_messages = json_util.dumps(messages)
+    return conver_messages
+
+
 @socketio.on("join")
 def on_join(data):
-    username = data.get("username")  # Lấy username từ dữ liệu gửi từ client
+    username = data.get("username")
     room_id = data.get("room_id")
-
-    print("Received data from client:", data)
     room_id_obj = ObjectId(room_id)
 
     room = rooms.find_one({"_id": room_id_obj})
@@ -195,8 +199,12 @@ def on_leave(data):
 def handle_message(message):
     username = message.get("username")
     room_id = message.get("room_id")
-    print(f"Received message from {username} in room {room_id}: {message}")
-    emit("message", {"username": username, "message": message["message"]}, room=room_id)
+    message_text = message.get("message")
+
+    mongo.db.messages.insert_one(
+        {"username": username, "room_id": room_id, "message": message_text}
+    )
+    emit("message", {"username": username, "message": message_text}, room=room_id)
 
 
 if __name__ == "__main__":
