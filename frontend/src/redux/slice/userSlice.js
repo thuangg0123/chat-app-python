@@ -89,6 +89,10 @@ const userSlice = createSlice({
         },
         logoutUser: (state) => {
             state.isLoggedIn = false;
+            state.userData = {};
+
+            localStorage.removeItem("userData");
+            localStorage.removeItem("isLoggedIn");
         },
         showErrorMessage: (state, action) => {
             state.error = action.payload;
@@ -123,7 +127,6 @@ const userSlice = createSlice({
                 localStorage.setItem("userData", JSON.stringify(action.payload.data));
                 localStorage.setItem("isLoggedIn", true);
             })
-
             .addCase(loadUserDataFromLocalStorage, (state, action) => {
                 const userData = JSON.parse(localStorage.getItem("userData"));
                 const isLoggedIn = localStorage.getItem("isLoggedIn");

@@ -31,7 +31,7 @@ function LoginForm() {
 
   return (
     <Container>
-      <div className="d-flex justify-content-center align-items-center">
+      <div className="d-flex justify-content-center align-items-center mt-3">
         <Form onSubmit={handleSubmit} className="w-50">
           <h2 className="text-center mb-4">Login</h2>
           {error && <Alert variant="danger">{error}</Alert>}

@@ -37,7 +37,7 @@ function CreateRoom() {
   };
 
   return (
-    <>
+    <div className="mt-3">
       {isLoggedIn ? (
         <Container>
           <div className="d-flex justify-content-center align-items-center">
@@ -71,7 +71,7 @@ function CreateRoom() {
           <h1 className="">Welcome to Chat App</h1>
         </div>
       )}
-    </>
+    </div>
   );
 }
 

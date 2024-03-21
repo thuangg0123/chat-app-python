@@ -19,7 +19,7 @@ function TableRoom() {
   };
 
   return (
-    <>
+    <div className="container mt-3">
       <div className="">
         <p className="fw-bold">List of available rooms</p>
       </div>
@@ -55,7 +55,7 @@ function TableRoom() {
           ))}
         </tbody>
       </Table>
-    </>
+    </div>
   );
 }
 

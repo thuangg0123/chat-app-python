@@ -34,48 +34,50 @@ function RegisterForm() {
   };
 
   return (
-    <Row className="justify-content-center">
-      <Col md={6}>
-        <div className="text-center">
-          <h2>Register</h2>
-        </div>
-        {error && <Alert variant="danger">{error}</Alert>}
-        {successMessage && <Alert variant="success">{successMessage}</Alert>}
-        <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="formBasicUsername">
-            <Form.Label>Username:</Form.Label>
-            <Form.Control
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              bssize="sm"
-            />
-          </Form.Group>
-          <Form.Group controlId="formBasicPassword">
-            <Form.Label>Password:</Form.Label>
-            <Form.Control
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              bssize="sm"
-            />
-          </Form.Group>
-          <div className="text-center mt-3">
-            <Link to="/login">Already have an account? Log in now.</Link>
-          </div>
+    <div className="mt-3">
+      <Row className="justify-content-center">
+        <Col md={6}>
           <div className="text-center">
-            <Button
-              variant="primary"
-              type="submit"
-              className="mt-3"
-              disabled={registering}
-            >
-              {registering ? "Registering..." : "Register"}
-            </Button>
+            <h2>Register</h2>
           </div>
-        </Form>
-      </Col>
-    </Row>
+          {error && <Alert variant="danger">{error}</Alert>}
+          {successMessage && <Alert variant="success">{successMessage}</Alert>}
+          <Form onSubmit={handleSubmit}>
+            <Form.Group controlId="formBasicUsername">
+              <Form.Label>Username:</Form.Label>
+              <Form.Control
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                bssize="sm"
+              />
+            </Form.Group>
+            <Form.Group controlId="formBasicPassword">
+              <Form.Label>Password:</Form.Label>
+              <Form.Control
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                bssize="sm"
+              />
+            </Form.Group>
+            <div className="text-center mt-3">
+              <Link to="/login">Already have an account? Log in now.</Link>
+            </div>
+            <div className="text-center">
+              <Button
+                variant="primary"
+                type="submit"
+                className="mt-3"
+                disabled={registering}
+              >
+                {registering ? "Registering..." : "Register"}
+              </Button>
+            </div>
+          </Form>
+        </Col>
+      </Row>
+    </div>
   );
 }
 

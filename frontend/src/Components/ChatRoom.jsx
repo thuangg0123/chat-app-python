@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 
 import Form from "react-bootstrap/Form";
@@ -6,8 +6,8 @@ import Button from "react-bootstrap/Button";
 import InputGroup from "react-bootstrap/InputGroup";
 
 import { useSelector, useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
-import { login, getUserRooms } from "../redux/slice/userSlice";
+import { useParams, Link } from "react-router-dom";
+import { getUserRooms } from "../redux/slice/userSlice";
 const socket = io("http://localhost:5000");
 import "./style.css";
 
@@ -15,6 +15,7 @@ function ChatRoom() {
   const { roomId } = useParams();
   const [messages, setMessages] = useState([]);
   const [messageInput, setMessageInput] = useState("");
+  const messagesEndRef = useRef(null);
 
   const userData = useSelector((state) => state.user.userData);
   const listRooms = useSelector((state) => state.user.listRooms);
@@ -67,15 +68,27 @@ function ChatRoom() {
     }
   };
 
-  console.log("messages", messages);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
-    <div className="container-chatroom container">
-      <div className="py-3 d-flex">
-        <h6 className="">Room Chat - #{roomId}</h6>
+    <div className="container-chatroom container mt-3">
+      <div className="px-3 d-flex justify-content-between align-items-center">
+        <h6 className="m-0">Room Chat - #{roomId}</h6>
+        <Link to="/list-room">
+          <Button variant="primary">Back List Room</Button>
+        </Link>
       </div>
 
-      <section className="chat">
+      <section
+        className="chat"
+        style={{ overflowY: "auto", maxHeight: "70vh" }}
+      >
         {messages.map((message, index) => (
           <span className="d-flex" key={index}>
             <p>
@@ -83,6 +96,7 @@ function ChatRoom() {
             </p>
           </span>
         ))}
+        <div ref={messagesEndRef} />
       </section>
 
       <Form

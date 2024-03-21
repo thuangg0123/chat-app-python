@@ -1,6 +1,10 @@
-// Trong component App.js
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import Navigation from "./Components/Navigation";
 import Home from "./Components/Home";
 import LoginForm from "./Components/LoginForm";
@@ -8,14 +12,16 @@ import RegisterForm from "./Components/RegisterForm";
 import CreateRoom from "./Components/CreateRoom";
 import TableRoom from "./Components/TableRoom";
 import ChatRoom from "./Components/ChatRoom";
+import ErrorPage from "./Components/ErrorPage";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getUserRooms,
   loadUserDataFromLocalStorage,
 } from "./redux/slice/userSlice";
 
 function App() {
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -26,14 +32,38 @@ function App() {
   return (
     <Router>
       <Navigation />
-      <div className="container mt-3">
+      <div>
         <Routes>
           <Route exact path="/" element={<Home />} />
-          <Route path="/list-room" element={<TableRoom />} />
-          <Route path="/create-room" element={<CreateRoom />} />
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/register" element={<RegisterForm />} />
-          <Route path="/chat-room/:roomId" element={<ChatRoom />} />
+          {!isLoggedIn ? (
+            <>
+              <Route path="/list-room" element={<Navigate to="/login" />} />
+              <Route
+                path="/chat-room/:roomId"
+                element={<Navigate to="/login" />}
+              />
+              <Route path="/create-room" element={<Navigate to="/login" />} />
+            </>
+          ) : (
+            <>
+              <Route path="/list-room" element={<TableRoom />} />
+              <Route path="/chat-room/:roomId" element={<ChatRoom />} />
+              <Route path="/create-room" element={<CreateRoom />} />
+            </>
+          )}
+
+          {isLoggedIn ? (
+            <>
+              <Route path="/login" element={<Navigate to="/" />} />
+              <Route path="/register" element={<Navigate to="/" />} />
+            </>
+          ) : (
+            <>
+              <Route path="/login" element={<LoginForm />} />
+              <Route path="/register" element={<RegisterForm />} />
+            </>
+          )}
+          <Route path="/*" element={<ErrorPage />} />
         </Routes>
       </div>
     </Router>
