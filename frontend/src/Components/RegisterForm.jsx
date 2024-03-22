@@ -1,19 +1,17 @@
 import React, { useState } from "react";
-import { Form, Button, Alert, Col, Row } from "react-bootstrap";
+import { Form, Button, Alert, Container } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { register } from "../redux/slice/userSlice";
-
 import { useNavigate, Link } from "react-router-dom";
 
 function RegisterForm() {
+  let navigate = useNavigate();
+  const dispatch = useDispatch();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const dispatch = useDispatch();
   const registering = useSelector((state) => state.user.registering);
   const error = useSelector((state) => state.user.error);
   const successMessage = useSelector((state) => state.user.successMessage);
-
-  let navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,50 +32,41 @@ function RegisterForm() {
   };
 
   return (
-    <div className="mt-3">
-      <Row className="justify-content-center">
-        <Col md={6}>
-          <div className="text-center">
-            <h2>Register</h2>
-          </div>
+    <Container>
+      <div className="d-flex justify-content-center align-items-center mt-3">
+        <Form onSubmit={handleSubmit} className="w-50">
+          <h2 className="text-center mb-4">Register</h2>
           {error && <Alert variant="danger">{error}</Alert>}
           {successMessage && <Alert variant="success">{successMessage}</Alert>}
-          <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="formBasicUsername">
-              <Form.Label>Username:</Form.Label>
-              <Form.Control
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                bssize="sm"
-              />
-            </Form.Group>
-            <Form.Group controlId="formBasicPassword">
-              <Form.Label>Password:</Form.Label>
-              <Form.Control
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                bssize="sm"
-              />
-            </Form.Group>
-            <div className="text-center mt-3">
-              <Link to="/login">Already have an account? Log in now.</Link>
-            </div>
-            <div className="text-center">
-              <Button
-                variant="primary"
-                type="submit"
-                className="mt-3"
-                disabled={registering}
-              >
-                {registering ? "Registering..." : "Register"}
-              </Button>
-            </div>
-          </Form>
-        </Col>
-      </Row>
-    </div>
+          <Form.Group controlId="formBasicUsername">
+            <Form.Label>Username:</Form.Label>
+            <Form.Control
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              size="sm"
+            />
+          </Form.Group>
+          <Form.Group controlId="formBasicPassword">
+            <Form.Label>Password:</Form.Label>
+            <Form.Control
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              size="sm"
+            />
+          </Form.Group>
+          <div className="text-center mt-3">
+            <Link to="/login">Already have an account? Log in now.</Link>
+          </div>
+          <div className="text-center mt-3">
+            <Button variant="primary" type="submit" disabled={registering}>
+              {registering ? "Registering..." : "Register"}
+            </Button>
+          </div>
+        </Form>
+      </div>
+    </Container>
   );
 }
 

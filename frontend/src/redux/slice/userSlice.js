@@ -96,6 +96,19 @@ export const getMessageFromDB = createAsyncThunk(
     }
 );
 
+export const joinRoom = createAsyncThunk(
+    'user/join-room',
+    async ({ room_id, user_id }, { rejectWithValue, dispatch }) => {
+        try {
+            const response = await axios.post(`http://localhost:5000/join-room`, { room_id, user_id });
+            dispatch(getUserRooms());
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
 export const loadUserDataFromLocalStorage = createAction('user/loadUserDataFromLocalStorage')
 export const setMessages = createAction('user/setMessages')
 

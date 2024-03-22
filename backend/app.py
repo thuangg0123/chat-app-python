@@ -118,6 +118,32 @@ def create_room():
     )
 
 
+@app.route("/join-room", methods=["POST"])
+def join_new_room():
+    room_id = request.json.get("room_id")
+    user_id = request.json.get("user_id")
+
+    if not user_id or not room_id:
+        return jsonify({"message": "User ID or Room ID is required"}), 400
+
+    user = users.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    room = rooms.find_one({"_id": ObjectId(room_id)})
+    if not room:
+        return jsonify({"message": "Room not found"}), 404
+
+    users.update_one(
+        {"_id": ObjectId(user_id)}, {"$addToSet": {"rooms": ObjectId(room_id)}}
+    )
+    rooms.update_one(
+        {"_id": ObjectId(room_id)}, {"$addToSet": {"users": ObjectId(user_id)}}
+    )
+
+    return jsonify({"message": "Room joined successfully"}), 200
+
+
 @app.route("/delete-room", methods=["POST"])
 def delete_room():
     room_id = request.json.get("room_id")
@@ -130,6 +156,8 @@ def delete_room():
         return jsonify({"message": "Room not found"}), 404
 
     rooms.delete_one({"_id": ObjectId(room_id)})
+    users.update_many({}, {"$pull": {"rooms": ObjectId(room_id)}})
+
     return jsonify({"message": "Room deleted successfully"}), 200
 
 
@@ -160,6 +188,7 @@ def on_join(data):
     username = data.get("username")
     room_id = data.get("room_id")
     room_id_obj = ObjectId(room_id)
+    sid = request.sid
 
     room = rooms.find_one({"_id": room_id_obj})
     if room is not None:

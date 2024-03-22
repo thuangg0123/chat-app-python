@@ -1,13 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
-
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
-import InputGroup from "react-bootstrap/InputGroup";
-
+import { Form, Button, InputGroup } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
-import { useParams, Link } from "react-router-dom";
-import { getUserRooms, getMessageFromDB } from "../redux/slice/userSlice";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { getMessageFromDB } from "../redux/slice/userSlice";
 import "./style.css";
 
 const socket = io("http://localhost:5000");
@@ -22,48 +18,47 @@ function ChatRoom() {
   const messagesDB = useSelector((state) => state.user.messagesDB);
   const dispatch = useDispatch();
 
+  const handleIncomingMessage = (message) => {
+    dispatch(getMessageFromDB(roomId));
+  };
+
   useEffect(() => {
-    socket.on("message", (message) => {
-      dispatch(getMessageFromDB(userData.rooms[0].room_id));
-    });
+    if (roomId) {
+      dispatch(getMessageFromDB(roomId));
+      const currentRoom = listRooms.find((room) => room.room_id === roomId);
+      if (currentRoom) {
+        socket.emit("join", {
+          room_id: roomId,
+          username: userData.username,
+        });
+      }
+    }
+  }, [roomId, listRooms, userData, dispatch]);
+
+  useEffect(() => {
+    socket.on("message", handleIncomingMessage);
     return () => {
-      socket.off("message");
+      socket.off("message", handleIncomingMessage);
     };
-  }, [dispatch, userData]);
-
-  useEffect(() => {
-    if (userData.user_id) {
-      dispatch(getUserRooms());
-    }
-  }, [userData, dispatch]);
-
-  useEffect(() => {
-    if (listRooms.length > 0) {
-      const currentRoom = listRooms[0];
-      socket.emit("join", {
-        room_id: currentRoom.room_id,
-        username: userData.username,
-      });
-    }
-    dispatch(getMessageFromDB(userData.rooms[0].room_id));
-  }, [listRooms, userData, roomId, dispatch]);
+  }, [handleIncomingMessage]);
 
   useEffect(() => {
     return () => {
-      const currentRoom = listRooms[0];
-      socket.emit("leave", {
-        room_id: currentRoom.room_id,
-        username: userData.username,
-      });
+      if (roomId) {
+        socket.emit("leave", {
+          room_id: roomId,
+          username: userData.username,
+        });
+      }
     };
-  }, [listRooms, userData]);
+  }, [roomId, userData]);
 
   const sendMessage = () => {
     if (messageInput.trim() !== "") {
       socket.emit("message", {
         username: userData.username,
         message: messageInput,
-        room_id: listRooms[0].room_id,
+        room_id: roomId,
       });
       setMessageInput("");
     }
@@ -78,7 +73,7 @@ function ChatRoom() {
   };
 
   return (
-    <div className="container-chatroom container mt-3">
+    <div className="container-chatroom container my-3">
       <div className="p-3 d-flex justify-content-between align-items-center">
         <h6 className="m-0">Room Chat - #{roomId}</h6>
         <Link to="/list-room">

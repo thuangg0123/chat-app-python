@@ -41,7 +41,7 @@ function LoginForm() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              size="sm" // smaller input
+              size="sm"
             />
           </Form.Group>
           <Form.Group controlId="formBasicPassword">
