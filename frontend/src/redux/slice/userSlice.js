@@ -68,9 +68,9 @@ export const createRoomChat = createAsyncThunk(
 
 export const deleteRoom = createAsyncThunk(
     'user/delete-room',
-    async (room_id, { rejectWithValue, dispatch }) => {
+    async ({ room_id, user_id }, { rejectWithValue, dispatch }) => {
         try {
-            const response = await axios.post('http://localhost:5000/delete-room', { room_id });
+            const response = await axios.post('http://localhost:5000/delete-room', { room_id, user_id });
             dispatch(getUserRooms());
             return response.data;
         } catch (error) {

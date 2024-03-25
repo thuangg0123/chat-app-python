@@ -101,7 +101,12 @@ def create_room():
         return jsonify({"message": "Room already exists"}), 400
 
     room_id = rooms.insert_one(
-        {"room_name": room_name, "users": [ObjectId(user_id)]}
+        {
+            "room_name": room_name,
+            "users": [
+                {"user_id": ObjectId(user_id), "role": "owner"}
+            ],  # Assign owner role
+        }
     ).inserted_id
 
     users.update_one({"_id": ObjectId(user_id)}, {"$addToSet": {"rooms": room_id}})
@@ -134,11 +139,23 @@ def join_new_room():
     if not room:
         return jsonify({"message": "Room not found"}), 404
 
+    room_users = room.get("users", [])
+    existing_user = next(
+        (user for user in room_users if user.get("user_id") == ObjectId(user_id)), None
+    )
+
+    if existing_user:
+        return jsonify({"message": "User already in the room"}), 200
+
+    role = "owner" if str(room_users[0].get("user_id")) == user_id else "member"
+
+    rooms.update_one(
+        {"_id": ObjectId(room_id)},
+        {"$addToSet": {"users": {"user_id": ObjectId(user_id), "role": role}}},
+    )
+
     users.update_one(
         {"_id": ObjectId(user_id)}, {"$addToSet": {"rooms": ObjectId(room_id)}}
-    )
-    rooms.update_one(
-        {"_id": ObjectId(room_id)}, {"$addToSet": {"users": ObjectId(user_id)}}
     )
 
     return jsonify({"message": "Room joined successfully"}), 200
@@ -147,18 +164,47 @@ def join_new_room():
 @app.route("/delete-room", methods=["POST"])
 def delete_room():
     room_id = request.json.get("room_id")
+    user_id = request.json.get("user_id")
 
     if not room_id:
         return jsonify({"message": "Room ID is required"}), 400
+
+    if not ObjectId.is_valid(room_id):
+        return jsonify({"message": "Invalid Room ID"}), 400
+
+    if not ObjectId.is_valid(user_id):
+        return jsonify({"message": "Invalid User ID"}), 400
 
     room = rooms.find_one({"_id": ObjectId(room_id)})
     if not room:
         return jsonify({"message": "Room not found"}), 404
 
-    rooms.delete_one({"_id": ObjectId(room_id)})
-    users.update_many({}, {"$pull": {"rooms": ObjectId(room_id)}})
+    room_users = room.get("users", [])
+    user_role = None
 
-    return jsonify({"message": "Room deleted successfully"}), 200
+    for user in room_users:
+        if str(user.get("user_id")) == user_id:
+            user_role = user.get("role")
+            break
+
+    if not user_role:
+        return jsonify({"message": "User is not a member of this room"}), 403
+
+    if user_role == "owner":
+        rooms.delete_one({"_id": ObjectId(room_id)})
+        users.update_many({}, {"$pull": {"rooms": ObjectId(room_id)}})
+        return jsonify({"message": "Room deleted successfully"}), 200
+    elif user_role == "member":
+        rooms.update_one(
+            {"_id": ObjectId(room_id)},
+            {"$pull": {"users": {"user_id": ObjectId(user_id)}}},
+        )
+        users.update_one(
+            {"_id": ObjectId(user_id)}, {"$pull": {"rooms": ObjectId(room_id)}}
+        )
+        return jsonify({"message": "Membership revoked successfully"}), 200
+    else:
+        return jsonify({"message": "Permission denied"}), 403
 
 
 @app.route("/user/<userId>/rooms", methods=["GET"])
