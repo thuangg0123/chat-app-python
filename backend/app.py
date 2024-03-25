@@ -14,6 +14,7 @@ CORS(app)
 
 users = mongo.db.users
 rooms = mongo.db.rooms
+messages = mongo.db.messages
 
 
 def hash_password(password):
@@ -103,9 +104,7 @@ def create_room():
     room_id = rooms.insert_one(
         {
             "room_name": room_name,
-            "users": [
-                {"user_id": ObjectId(user_id), "role": "owner"}
-            ],  # Assign owner role
+            "users": [{"user_id": ObjectId(user_id), "role": "owner"}],
         }
     ).inserted_id
 
@@ -193,6 +192,10 @@ def delete_room():
     if user_role == "owner":
         rooms.delete_one({"_id": ObjectId(room_id)})
         users.update_many({}, {"$pull": {"rooms": ObjectId(room_id)}})
+
+        if "messages" in globals():
+            messages.delete_many({"room_id": room_id})
+
         return jsonify({"message": "Room deleted successfully"}), 200
     elif user_role == "member":
         rooms.update_one(
@@ -234,7 +237,6 @@ def on_join(data):
     username = data.get("username")
     room_id = data.get("room_id")
     room_id_obj = ObjectId(room_id)
-    sid = request.sid
 
     room = rooms.find_one({"_id": room_id_obj})
     if room is not None:

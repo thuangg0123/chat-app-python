@@ -17,18 +17,15 @@ function TableRoom() {
 
   const handleDeleteRoom = async (room_id) => {
     try {
-      // Kiểm tra xem userData có tồn tại và có chứa user_id không
       if (!userData || !userData.user_id) {
         console.error("User data or user ID is missing");
         return;
       }
 
-      // Gửi yêu cầu xóa phòng với ID phòng và ID người dùng hợp lệ
       const response = await dispatch(
         deleteRoom({ room_id: room_id, user_id: userData.user_id })
       );
 
-      // Kiểm tra xem yêu cầu đã thành công và cập nhật lại danh sách phòng nếu cần
       if (response.payload.message === "Room deleted successfully") {
         dispatch(getUserRooms());
       }
