@@ -1,0 +1,14 @@
+- Backend: 
+run MongoDb =>  VSCode cd to folder backend, enter:
+
+source venv/bin/activate
+pip install Flask
+pip install flask-socketio
+pip install flask-pymongo
+pip install flask-cors
+pip install bcrypt
+
+=> python app.py
+
+- Frontend:
+cd to folder frontend enter: npm i => npm run dev
