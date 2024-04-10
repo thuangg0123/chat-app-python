@@ -5,8 +5,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getMessageFromDB } from "../redux/slice/userSlice";
 import "./style.css";
+import DefaultURL from "../config/DefaultURL";
 
-const socket = io("http://localhost:5000");
+const socket = io(DefaultURL.getURL());
 
 function ChatRoom() {
   const { roomId } = useParams();

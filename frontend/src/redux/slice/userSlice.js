@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 import axios from 'axios';
+import DefaultURL from '../../config/DefaultURL';
 
 const initialState = {
     isLoggedIn: false,
@@ -16,7 +17,7 @@ export const register = createAsyncThunk(
     'user/register',
     async (userData, { rejectWithValue }) => {
         try {
-            const response = await axios.post('http://localhost:5000/register', userData);
+            const response = await axios.post(`${DefaultURL.getURL()}/register`, userData);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -28,7 +29,7 @@ export const login = createAsyncThunk(
     'user/login',
     async ({ username, password }, { rejectWithValue, dispatch }) => {
         try {
-            const response = await axios.post('http://localhost:5000/login', { username, password });
+            const response = await axios.post(`${DefaultURL.getURL()}/login`, { username, password });
             dispatch(getUserRooms());
             return response;
         } catch (error) {
@@ -45,7 +46,7 @@ export const getUserRooms = createAsyncThunk(
             if (!userData || !userData.user_id) {
                 throw new Error("User is not logged in");
             }
-            const response = await axios.get(`http://localhost:5000/user/${userData.user_id}/rooms`);
+            const response = await axios.get(`${DefaultURL.getURL()}/user/${userData.user_id}/rooms`);
             return response.data.rooms;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -58,7 +59,7 @@ export const createRoomChat = createAsyncThunk(
     'user/create-room',
     async ({ room_name, user_id }, { rejectWithValue }) => {
         try {
-            const response = await axios.post('http://localhost:5000/create-room', { room_name, user_id });
+            const response = await axios.post(`${DefaultURL.getURL()}/create-room`, { room_name, user_id });
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response.data);
@@ -70,7 +71,7 @@ export const deleteRoom = createAsyncThunk(
     'user/delete-room',
     async ({ room_id, user_id }, { rejectWithValue, dispatch }) => {
         try {
-            const response = await axios.post('http://localhost:5000/delete-room', { room_id, user_id });
+            const response = await axios.post(`${DefaultURL.getURL()}/delete-room`, { room_id, user_id });
             dispatch(getUserRooms());
             return response.data;
         } catch (error) {
@@ -83,7 +84,7 @@ export const getMessageFromDB = createAsyncThunk(
     'user/get-message-from-db',
     async (room_id, { rejectWithValue, dispatch }) => {
         try {
-            const response = await axios.get(`http://localhost:5000/messages/${room_id}`);
+            const response = await axios.get(`${DefaultURL.getURL()}/messages/${room_id}`);
             const messages = response.data.map(message => ({
                 message: message.message,
                 username: message.username
@@ -100,7 +101,7 @@ export const joinRoom = createAsyncThunk(
     'user/join-room',
     async ({ room_id, user_id }, { rejectWithValue, dispatch }) => {
         try {
-            const response = await axios.post(`http://localhost:5000/join-room`, { room_id, user_id });
+            const response = await axios.post(`${DefaultURL.getURL()}/join-room`, { room_id, user_id });
             dispatch(getUserRooms());
             return response.data;
         } catch (error) {

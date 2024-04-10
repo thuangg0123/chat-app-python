@@ -1,7 +1,7 @@
 Technology used:
 
 - Front End: ReactJs, Redux Toolkit, Bootstrap
-- Backend: Python, Flask, SocketIO, ReactAPI
+- Backend: Python, Flask, SocketIO, RestAPI
 - Database: MongoDB
 - Testing: Postman
 
